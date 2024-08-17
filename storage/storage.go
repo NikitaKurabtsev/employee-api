@@ -29,7 +29,6 @@ func NewMapMemoryStorage() *MapMemoryStorage {
 func (s *MapMemoryStorage) Insert(e *Employee) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
 	e.Id = s.counter
 	s.data[e.Id] = *e
 }
@@ -53,10 +52,17 @@ func (s *MapMemoryStorage) List() []Employee {
 func (s *MapMemoryStorage) Update(id int, e *Employee) (Employee, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, ok := s.data[id]
-	if !ok {
+	if _, ok := s.data[id]; !ok {
 		return *e, errors.New("failed to update")
 	}
 	s.data[id] = *e
 	return *e, nil
+}
+
+func (s *MapMemoryStorage) Delete(id int) error {
+	if _, ok := s.data[id]; !ok {
+		return errors.New("employee with such id doesn't exists")
+	}
+	delete(s.data, id)
+	return nil
 }
