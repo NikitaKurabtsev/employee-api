@@ -1,5 +1,7 @@
 package storage
 
+import "sync"
+
 type Employee struct {
 	Id     int    `json:"id"`
 	Name   string `json:"name"`
@@ -14,5 +16,18 @@ func NewEmployee(name, sex, salary string, age int) *Employee {
 		Sex:    sex,
 		Age:    age,
 		Salary: salary,
+	}
+}
+
+type MapMemoryStorage struct {
+	counter int
+	data    map[int]Employee
+	mu      sync.Mutex
+}
+
+func NewMapMemoryStorage() *MapMemoryStorage {
+	return &MapMemoryStorage{
+		counter: 1,
+		data:    make(map[int]Employee),
 	}
 }
