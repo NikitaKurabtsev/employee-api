@@ -1,6 +1,9 @@
 package storage
 
-import "sync"
+import (
+	"errors"
+	"sync"
+)
 
 type Employee struct {
 	Id     int    `json:"id"`
@@ -23,10 +26,18 @@ func NewMapMemoryStorage() *MapMemoryStorage {
 	}
 }
 
-func (m *MapMemoryStorage) Insert(e *Employee) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+func (s *MapMemoryStorage) Insert(e *Employee) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	e.Id = m.counter
-	m.data[e.Id] = *e
+	e.Id = s.counter
+	s.data[e.Id] = *e
+}
+
+func (s *MapMemoryStorage) Get(id int) (Employee, error) {
+	e, ok := s.data[id]
+	if !ok {
+		return Employee{}, errors.New("employee with such id doesn't exists")
+	}
+	return e, nil
 }
