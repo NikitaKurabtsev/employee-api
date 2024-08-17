@@ -35,9 +35,28 @@ func (s *MapMemoryStorage) Insert(e *Employee) {
 }
 
 func (s *MapMemoryStorage) Get(id int) (Employee, error) {
-	e, ok := s.data[id]
+	emp, ok := s.data[id]
 	if !ok {
 		return Employee{}, errors.New("employee with such id doesn't exists")
 	}
-	return e, nil
+	return emp, nil
+}
+
+func (s *MapMemoryStorage) List() []Employee {
+	var employeeList []Employee
+	for _, e := range s.data {
+		employeeList = append(employeeList, e)
+	}
+	return employeeList
+}
+
+func (s *MapMemoryStorage) Update(id int, e *Employee) (Employee, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, ok := s.data[id]
+	if !ok {
+		return *e, errors.New("failed to update")
+	}
+	s.data[id] = *e
+	return *e, nil
 }
