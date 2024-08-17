@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -38,7 +39,7 @@ func (s *MapMemoryStorage) Get(id int) (Employee, error) {
 	if emp, ok := s.data[id]; ok {
 		return emp, nil
 	}
-	return Employee{}, errors.New("employee with such id doesn't exists")
+	return Employee{}, fmt.Errorf("employee with id: %d doesn't exists", id)
 }
 
 func (s *MapMemoryStorage) List() []Employee {
@@ -64,5 +65,5 @@ func (s *MapMemoryStorage) Delete(id int) error {
 		delete(s.data, id)
 		return nil
 	}
-	return errors.New("employee with such id doesn't exists")
+	return fmt.Errorf("employee with id: %d doesn't exists", id)
 }
