@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 )
@@ -50,14 +49,14 @@ func (s *MapMemoryStorage) List() []Employee {
 	return employeeList
 }
 
-func (s *MapMemoryStorage) Update(id int, e *Employee) (Employee, error) {
+func (s *MapMemoryStorage) Update(id int, e *Employee) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, ok := s.data[id]; ok {
 		s.data[id] = *e
-		return *e, nil
+		return nil
 	}
-	return *e, errors.New("failed to update")
+	return fmt.Errorf("failed to update the employee with the id: %d", id)
 }
 
 func (s *MapMemoryStorage) Delete(id int) error {
