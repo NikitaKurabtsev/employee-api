@@ -22,3 +22,11 @@ func NewMapMemoryStorage() *MapMemoryStorage {
 		data:    make(map[int]Employee),
 	}
 }
+
+func (m *MapMemoryStorage) Insert(e *Employee) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	e.Id = m.counter
+	m.data[e.Id] = *e
+}
