@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,4 +61,25 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 		"employees": allEmployees,
 		"count":     count,
 	})
+}
+
+func (h *Handler) GetEmployee(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		h.logger.Error("Failed to convert id param to int",
+			slog.String("error", err.Error()))
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	employee, err := h.storage.Get(id)
+	if err != nil {
+		h.logger.Error(err.Error())
+		c.JSON(http.StatusNotFound, employee)
+		return
+	}
+
+	c.JSON(http.StatusOK, employee)
 }
