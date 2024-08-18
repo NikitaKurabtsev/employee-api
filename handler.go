@@ -12,13 +12,19 @@ type ErrorResponse struct {
 
 type Handler struct {
 	storage Storage
+	logger *slog.Logger
 }
 
 // NewHandler returns pointer to the Handler
 // and implements Dependency Injection pattern
-func NewHandler(storage Storage) *Handler {
+func NewHandler(storage Storage) (*Handler, error) {
+	logger, err := InitLogger()
+	if err != nil {
+		return nil, fmt.Errorf("failed to init logger: %w", err)
+	}
 	return &Handler{
 		storage: storage
-	}
+		logger: logger
+	}, nil
 }
 
