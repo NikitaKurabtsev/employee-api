@@ -15,5 +15,6 @@ func InitLogger() (*slog.Logger, error) {
 	defer logFile.Close()
 
 	logger := slog.New(slog.NewJSONHandler(logFile, nil))
+	logger.Info("Application started")
 	return logger, nil
 }
