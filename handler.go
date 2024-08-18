@@ -1,3 +1,9 @@
+package main
+
+import (
+	"log/slog"
+)
+
 type Storage interface {
 	Insert(e *Employee)
 	Get(id int) (Employee, error)
@@ -12,19 +18,14 @@ type ErrorResponse struct {
 
 type Handler struct {
 	storage Storage
-	logger *slog.Logger
+	logger  *slog.Logger
 }
 
 // NewHandler returns pointer to the Handler
 // and implements Dependency Injection pattern
-func NewHandler(storage Storage) (*Handler, error) {
-	logger, err := InitLogger()
-	if err != nil {
-		return nil, fmt.Errorf("failed to init logger: %w", err)
-	}
+func NewHandler(storage Storage, logger *slog.Logger) *Handler {
 	return &Handler{
-		storage: storage
-		logger: logger
-	}, nil
+		storage: storage,
+		logger:  logger,
+	}
 }
-
