@@ -2,19 +2,18 @@ package main
 
 import (
 	"log"
-	"log/slog"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	logFile, err := os.OpenFile("employee-api.log",
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logger, err := InitLogger()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to init logger: %w", err)
 	}
-	defer logFile.Close()
+
+	mapMemoryStorage := NewMapMemoryStorage()
+	handler := NewHandler(mapMemoryStorage, logger)
 
 	router := gin.Default()
 
@@ -27,6 +26,4 @@ func main() {
 	// throw the port 80
 	// default is 8080
 	router.Run(":80")
-
-	logger := slog.New(slog.NewJSONHandler(logFile, nil))
 }
