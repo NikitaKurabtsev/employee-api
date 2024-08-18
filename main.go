@@ -9,5 +9,4 @@ type Storage interface {
 }
 
 func main() {
-
 }
