@@ -11,5 +11,7 @@ func main() {
 	router.PUT("/employee/:id")
 	router.DELETE("/employee/:id")
 
+	// throw the port 80
+	// default is 8080
 	router.Run(":80")
 }
