@@ -17,7 +17,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/employee")
+	router.POST("/employee", handler.CreateEmployee)
 	router.GET("/employee")
 	router.GET("/employee/:id")
 	router.PUT("/employee/:id")
