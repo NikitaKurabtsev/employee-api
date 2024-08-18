@@ -45,9 +45,19 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	}
 
 	h.storage.Insert(&employee)
-
 	h.logger.Info("Employee created:", "name", employee.Name, "id", employee.Id)
+
 	c.JSON(http.StatusCreated, map[string]interface{}{
 		"id": employee.Id,
+	})
+}
+
+func (h *Handler) GetAllEmployees(c *gin.Context) {
+	allEmployees := h.storage.List()
+	count := len(allEmployees)
+
+	c.JSON(http.StatusOK, gin.H{
+		"employees": allEmployees,
+		"count":     count,
 	})
 }
