@@ -7,7 +7,7 @@ import (
 
 	"github.com/NikitaKurabtsev/employee-api.git/internal/errors"
 	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
-	"github.com/NikitaKurabtsev/employee-api.git/pkg/utils"
+	"github.com/NikitaKurabtsev/employee-api.git/internal/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,15 +34,19 @@ func NewHandler(storage Storage, logger *slog.Logger) *Handler {
 }
 
 func (h *Handler) CreateEmployee(c *gin.Context) {
+	funcName := "CreateEmployee"
 	var employee models.Employee
+	var errMessage string
 
 	if err := c.BindJSON(&employee); err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: failed to bind JSON", err)
+		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidJSON)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
-	if err := utils.ValidateEmployee(employee); err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: invalid employee data", err)
+	if err := validation.ValidateEmployee(employee); err != nil {
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeValidation)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
@@ -99,7 +103,7 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	if err := utils.ValidateEmployee(employee); err != nil {
+	if err := validation.ValidateEmployee(employee); err != nil {
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid employee data", err)
 		return
 	}
