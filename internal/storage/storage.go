@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"fmt"
@@ -7,64 +7,64 @@ import (
 	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
 )
 
-var (
-	errEmployeeNotFound       = fmt.Errorf("employee doesn't exists")
-	errFailedToUpdateEmployee = fmt.Errorf("failed to update employee")
+const (
+	errNotFound       = "employee doesn't exists"
+	errFailedToUpdate = "failed to update employee"
 )
 
-type MapMemoryStorage struct {
+type EmployeeRepository struct {
 	counter int
 	data    map[int]models.Employee
 	mu      sync.Mutex
 }
 
-func NewMapMemoryStorage() *MapMemoryStorage {
-	return &MapMemoryStorage{
+func NewEmployeeRepository() *EmployeeRepository {
+	return &EmployeeRepository{
 		counter: 1,
 		data:    make(map[int]models.Employee),
 	}
 }
 
-func (s *MapMemoryStorage) Insert(e *models.Employee) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (r *EmployeeRepository) Insert(e *models.Employee) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	e.Id = s.counter
-	s.data[e.Id] = *e
-	s.counter++
+	e.Id = r.counter
+	r.data[e.Id] = *e
+	r.counter++
 }
 
-func (s *MapMemoryStorage) Get(id int) (models.Employee, error) {
-	if emp, ok := s.data[id]; ok {
+func (r *EmployeeRepository) Get(id int) (models.Employee, error) {
+	if emp, ok := r.data[id]; ok {
 		return emp, nil
 	}
-	return models.Employee{}, errEmployeeNotFound
+	return models.Employee{}, fmt.Errorf(errNotFound)
 }
 
-func (s *MapMemoryStorage) List() []models.Employee {
+func (r *EmployeeRepository) List() []models.Employee {
 	var employeeList []models.Employee
 
-	for _, e := range s.data {
+	for _, e := range r.data {
 		employeeList = append(employeeList, e)
 	}
 	return employeeList
 }
 
-func (s *MapMemoryStorage) Update(id int, e *models.Employee) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (r *EmployeeRepository) Update(id int, e *models.Employee) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	if _, ok := s.data[id]; ok {
-		s.data[id] = *e
+	if _, ok := r.data[id]; ok {
+		r.data[id] = *e
 		return nil
 	}
-	return errFailedToUpdateEmployee
+	return fmt.Errorf(errFailedToUpdate)
 }
 
-func (s *MapMemoryStorage) Delete(id int) error {
-	if _, ok := s.data[id]; ok {
-		delete(s.data, id)
+func (r *EmployeeRepository) Delete(id int) error {
+	if _, ok := r.data[id]; ok {
+		delete(r.data, id)
 		return nil
 	}
-	return errEmployeeNotFound
+	return fmt.Errorf(errNotFound)
 }

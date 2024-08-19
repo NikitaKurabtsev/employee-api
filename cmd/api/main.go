@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/NikitaKurabtsev/employee-api.git/internal/handler"
-	"github.com/NikitaKurabtsev/employee-api.git/internal/storage"
+	"github.com/NikitaKurabtsev/employee-api.git/internal/repository"
 	"github.com/NikitaKurabtsev/employee-api.git/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -15,8 +15,9 @@ func main() {
 		log.Fatal("failed to init logger: %w", err)
 	}
 
-	mapMemoryStorage := storage.NewMapMemoryStorage()
-	handler := handler.NewHandler(mapMemoryStorage, logger)
+	employeeRepository := repository.NewEmployeeRepository()
+
+	handler := handler.NewHandler(employeeRepository, logger)
 
 	router := gin.Default()
 
