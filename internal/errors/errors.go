@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
+const (
 	ErrEmployeeInvalidId  = "ID must be a number"
 	ErrInvalidJSON        = "failed to parse JSON"
 	ErrEmployeeUpdate     = "failed to update employee"
