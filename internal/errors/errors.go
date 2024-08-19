@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	ErrInvalidId      = "invalid employee ID"
-	ErrInvalidJSON    = "failed to parse JSON"
-	ErrUpdateEmployee = "failed to update employee"
+	ErrInvalidId        = "ID must be a number"
+	ErrInvalidJSON      = "failed to parse JSON"
+	ErrUpdateEmployee   = "failed to update employee"
+	ErrEmployeeNotFound = "employee not found"
 )
 
 type errorResponse struct {
