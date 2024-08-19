@@ -65,6 +65,7 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 
 func (h *Handler) GetEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
+
 	if err != nil {
 		h.logger.Error("Failed to convert id param to int",
 			slog.String("error", err.Error()))
