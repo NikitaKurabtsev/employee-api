@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ErrorResponse struct {
+type errorResponse struct {
 	Message string `json:"message"`
 }
 
@@ -17,7 +17,7 @@ func RespondWithError(c *gin.Context, logger *slog.Logger, statusCode int, messa
 		slog.String("error", err.Error()),
 		slog.Int("status_code", statusCode),
 	)
-	c.JSON(statusCode, ErrorResponse{
+	c.JSON(statusCode, errorResponse{
 		Message: message,
 	})
 }
