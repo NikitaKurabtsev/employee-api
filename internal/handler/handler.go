@@ -66,17 +66,18 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 }
 
 func (h *Handler) GetEmployee(c *gin.Context) {
+	funcName := "GetEmployee"
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		// TODO: move ErrMessage from utils to the internal/errors
-		errMessage := errors.ErrMessage("GetEmployee:", errors.ErrInvalidId)
+		errMessage := errors.ErrMessage(funcName, errors.ErrInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusNotFound, "GetEmployee: employee not found", err)
+		errMessage := errors.ErrMessage(funcName, errors.ErrEmployeeNotFound)
+		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
 		return
 	}
 
@@ -86,7 +87,7 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 func (h *Handler) UpdateEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage := errors.ErrMessage("UpdateEmployee:", errInvalidEmployeeId)
+		errMessage := errors.ErrMessage("UpdateEmployee:", errors.ErrInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
