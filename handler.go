@@ -34,7 +34,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	var employee Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: Failed to bind JSON", err)
+		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: failed to bind JSON", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	}
 
 	h.storage.Insert(&employee)
-	h.logger.Info("Employee created:", "name", employee.Name, "id", employee.Id)
+	h.logger.Info("employee created", "name", employee.Name, "id", employee.Id)
 
 	c.JSON(http.StatusCreated, map[string]interface{}{
 		"id": employee.Id,
