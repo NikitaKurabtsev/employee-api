@@ -46,8 +46,9 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	h.storage.Insert(&employee)
 	h.logger.Info("employee created", "name", employee.Name, "id", employee.Id)
 
-	c.JSON(http.StatusCreated, map[string]interface{}{
-		"id": employee.Id,
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "successfully created",
+		"id":      employee.Id,
 	})
 }
 
@@ -101,7 +102,10 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, employee)
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "updated successfully",
+		"employee": employee,
+	})
 }
 
 func (h *Handler) DeleteEmployee(c *gin.Context) {
@@ -119,8 +123,5 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 
 	h.logger.Info("DeleteEmployee: employee deleted", "id", id)
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "employee not found",
-		"id":      id,
-	})
+	c.Status(http.StatusNoContent)
 }
