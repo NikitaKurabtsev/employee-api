@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	ErrInvalidId          = "ID must be a number"
+	ErrEmployeeInvalidId  = "ID must be a number"
 	ErrInvalidJSON        = "failed to parse JSON"
-	ErrUpdateEmployee     = "failed to update employee"
+	ErrEmployeeUpdate     = "failed to update employee"
 	ErrEmployeeNotFound   = "employee not found"
 	ErrEmployeeValidation = "invalid employee data"
 )
