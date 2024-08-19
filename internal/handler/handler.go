@@ -71,16 +71,18 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 
 func (h *Handler) GetEmployee(c *gin.Context) {
 	funcName := "GetEmployee"
+	var errMessage string
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage := errors.ErrMessage(funcName, errors.ErrInvalidId)
+		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		errMessage := errors.ErrMessage(funcName, errors.ErrEmployeeNotFound)
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeNotFound)
 		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
 		return
 	}
