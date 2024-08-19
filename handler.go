@@ -34,10 +34,7 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	var employee Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		h.logger.Error("Failed to bind JSON", "json", err)
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: Failed to bind JSON", err)
 		return
 	}
 
@@ -62,13 +59,13 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 func (h *Handler) GetEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid ID", err)
+		RespondWithError(c, h.logger, http.StatusBadRequest, "GetEmployee: invalid ID", err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusNotFound, "UpdateEmployee: employee not found", err)
+		RespondWithError(c, h.logger, http.StatusNotFound, "GetEmployee: employee not found", err)
 		return
 	}
 
