@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
+	"github.com/NikitaKurabtsev/employee-api/internal/models"
 )
 
 const (
@@ -62,6 +62,9 @@ func (r *EmployeeRepository) Update(id int, e *models.Employee) error {
 }
 
 func (r *EmployeeRepository) Delete(id int) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	if _, ok := r.data[id]; ok {
 		delete(r.data, id)
 		return nil

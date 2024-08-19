@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/NikitaKurabtsev/employee-api.git/internal/handler"
-	"github.com/NikitaKurabtsev/employee-api.git/internal/repository"
-	"github.com/NikitaKurabtsev/employee-api.git/pkg/logger"
+	"github.com/NikitaKurabtsev/employee-api/internal/handler"
+	"github.com/NikitaKurabtsev/employee-api/internal/repository"
+	"github.com/NikitaKurabtsev/employee-api/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 

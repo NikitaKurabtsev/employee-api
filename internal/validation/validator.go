@@ -3,7 +3,7 @@ package validation
 import (
 	"fmt"
 
-	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
+	"github.com/NikitaKurabtsev/employee-api/internal/models"
 )
 
 func ValidateEmployee(e models.Employee) error {

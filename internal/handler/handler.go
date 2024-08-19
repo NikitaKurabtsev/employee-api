@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/NikitaKurabtsev/employee-api.git/internal/errors"
-	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
-	"github.com/NikitaKurabtsev/employee-api.git/internal/validation"
+	"github.com/NikitaKurabtsev/employee-api/internal/errors"
+	"github.com/NikitaKurabtsev/employee-api/internal/models"
+	"github.com/NikitaKurabtsev/employee-api/internal/validation"
 	"github.com/gin-gonic/gin"
 )
 
