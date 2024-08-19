@@ -38,6 +38,11 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 		return
 	}
 
+	if err := validateEmployee(employee); err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: invalid employee data", err)
+		return
+	}
+
 	h.storage.Insert(&employee)
 	h.logger.Info("Employee created:", "name", employee.Name, "id", employee.Id)
 
