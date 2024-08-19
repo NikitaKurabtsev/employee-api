@@ -1,18 +1,24 @@
-package main
+package handler
 
 import (
 	"log/slog"
 	"net/http"
 	"strconv"
 
+	"github.com/NikitaKurabtsev/employee-api.git/internal/models"
+	"github.com/NikitaKurabtsev/employee-api.git/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	errInvalidEmployeeId = "invalid employee ID"
+)
+
 type Storage interface {
-	Insert(e *Employee)
-	Get(id int) (Employee, error)
-	List() []Employee
-	Update(id int, e *Employee) error
+	Insert(e *models.Employee)
+	Get(id int) (models.Employee, error)
+	List() []models.Employee
+	Update(id int, e *models.Employee) error
 	Delete(id int) error
 }
 
@@ -31,15 +37,15 @@ func NewHandler(storage Storage, logger *slog.Logger) *Handler {
 }
 
 func (h *Handler) CreateEmployee(c *gin.Context) {
-	var employee Employee
+	var employee models.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: failed to bind JSON", err)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: failed to bind JSON", err)
 		return
 	}
 
-	if err := validateEmployee(employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: invalid employee data", err)
+	if err := utils.ValidateEmployee(employee); err != nil {
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "CreateEmployee: invalid employee data", err)
 		return
 	}
 
@@ -65,13 +71,14 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 func (h *Handler) GetEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "GetEmployee: invalid ID", err)
+		errMessage := utils.ErrMessage("GetEmployee:", errInvalidEmployeeId)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusNotFound, "GetEmployee: employee not found", err)
+		utils.RespondWithError(c, h.logger, http.StatusNotFound, "GetEmployee: employee not found", err)
 		return
 	}
 
@@ -81,24 +88,25 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 func (h *Handler) UpdateEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid ID", err)
+		errMessage := utils.ErrMessage("GetEmployee:", errInvalidEmployeeId)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
-	var employee Employee
+	var employee models.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to parse JSON", err)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to parse JSON", err)
 		return
 	}
 
-	if err := validateEmployee(employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid employee data", err)
+	if err := utils.ValidateEmployee(employee); err != nil {
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid employee data", err)
 		return
 	}
 
 	if err := h.storage.Update(id, &employee); err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to update employee", err)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to update employee", err)
 		return
 	}
 
@@ -111,13 +119,13 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 func (h *Handler) DeleteEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusBadRequest, "DeleteEmployee: invalid ID", err)
+		utils.RespondWithError(c, h.logger, http.StatusBadRequest, "DeleteEmployee: invalid ID", err)
 		return
 	}
 
 	err = h.storage.Delete(id)
 	if err != nil {
-		RespondWithError(c, h.logger, http.StatusNotFound, "DeleteEmployee: employee not found", err)
+		utils.RespondWithError(c, h.logger, http.StatusNotFound, "DeleteEmployee: employee not found", err)
 		return
 	}
 
