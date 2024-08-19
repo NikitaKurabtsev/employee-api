@@ -11,6 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	createMethodName = "CreateEmployee"
+	updateMethodName = "UpdateEmployee"
+	getAllMethodName = "GetAllEmployees"
+	getMethodName    = "GetEmployee"
+	delereMethodName = "DeleteEmployee"
+)
+
 type Storage interface {
 	Insert(e *models.Employee)
 	Get(id int) (models.Employee, error)
@@ -34,18 +42,17 @@ func NewHandler(storage Storage, logger *slog.Logger) *Handler {
 }
 
 func (h *Handler) CreateEmployee(c *gin.Context) {
-	funcName := "CreateEmployee"
 	var employee models.Employee
 	var errMessage string
 
 	if err := c.BindJSON(&employee); err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidJSON)
+		errMessage = errors.ErrMessage(createMethodName, errors.ErrInvalidJSON)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	if err := validation.ValidateEmployee(employee); err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeValidation)
+		errMessage = errors.ErrMessage(createMethodName, errors.ErrEmployeeValidation)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
@@ -70,19 +77,18 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 }
 
 func (h *Handler) GetEmployee(c *gin.Context) {
-	funcName := "GetEmployee"
 	var errMessage string
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeInvalidId)
+		errMessage = errors.ErrMessage(getMethodName, errors.ErrEmployeeInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeNotFound)
+		errMessage = errors.ErrMessage(getMethodName, errors.ErrEmployeeNotFound)
 		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
 		return
 	}
@@ -91,12 +97,11 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 }
 
 func (h *Handler) UpdateEmployee(c *gin.Context) {
-	funcName := "UpdateEmployee"
 	var errMessage string
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeInvalidId)
+		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
@@ -104,19 +109,19 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 	var employee models.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidJSON)
+		errMessage = errors.ErrMessage(updateMethodName, errors.ErrInvalidJSON)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	if err := validation.ValidateEmployee(employee); err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeValidation)
+		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeValidation)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	if err := h.storage.Update(id, &employee); err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeUpdate)
+		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeUpdate)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
