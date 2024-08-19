@@ -18,8 +18,8 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/employee", handler.CreateEmployee)
-	router.GET("/employee")
-	router.GET("/employee/:id")
+	router.GET("/employee", handler.GetAllEmployees)
+	router.GET("/employee/:id", handler.CreateEmployee)
 	router.PUT("/employee/:id")
 	router.DELETE("/employee/:id")
 
