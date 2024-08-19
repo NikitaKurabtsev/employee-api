@@ -16,10 +16,6 @@ type Storage interface {
 	Delete(id int) error
 }
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
 type Handler struct {
 	storage Storage
 	logger  *slog.Logger
@@ -65,20 +61,41 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 
 func (h *Handler) GetEmployee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-
 	if err != nil {
-		h.logger.Error("Failed to convert id param to int",
-			slog.String("error", err.Error()))
-		c.JSON(http.StatusBadRequest, ErrorResponse{
-			Message: err.Error(),
-		})
+		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid ID", err)
 		return
 	}
 
 	employee, err := h.storage.Get(id)
 	if err != nil {
-		h.logger.Error(err.Error())
-		c.JSON(http.StatusNotFound, employee)
+		RespondWithError(c, h.logger, http.StatusNotFound, "UpdateEmployee: employee not found", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, employee)
+}
+
+func (h *Handler) UpdateEmployee(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid ID", err)
+		return
+	}
+
+	var employee Employee
+
+	if err := c.BindJSON(&employee); err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to parse JSON", err)
+		return
+	}
+
+	if err := validateEmployee(employee); err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid employee data", err)
+		return
+	}
+
+	if err := h.storage.Update(id, &employee); err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to update employee", err)
 		return
 	}
 
