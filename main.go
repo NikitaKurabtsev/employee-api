@@ -20,8 +20,8 @@ func main() {
 	router.POST("/employee", handler.CreateEmployee)
 	router.GET("/employee", handler.GetAllEmployees)
 	router.GET("/employee/:id", handler.CreateEmployee)
-	router.PUT("/employee/:id")
-	router.DELETE("/employee/:id")
+	router.PUT("/employee/:id", handler.UpdateEmployee)
+	router.DELETE("/employee/:id", handler.DeleteEmployee)
 
 	// throw the port 80
 	// default is 8080
