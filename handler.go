@@ -103,3 +103,24 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 
 	c.JSON(http.StatusOK, employee)
 }
+
+func (h *Handler) DeleteEmployee(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		RespondWithError(c, h.logger, http.StatusBadRequest, "DeleteEmployee: invalid ID", err)
+		return
+	}
+
+	err = h.storage.Delete(id)
+	if err != nil {
+		RespondWithError(c, h.logger, http.StatusNotFound, "DeleteEmployee: employee not found", err)
+		return
+	}
+
+	h.logger.Info("DeleteEmployee: employee deleted", "id", id)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "employee not found",
+		"id":      id,
+	})
+}
