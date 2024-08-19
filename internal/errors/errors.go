@@ -18,6 +18,8 @@ type errorResponse struct {
 	Message string `json:"message"`
 }
 
+// RespondWithError logs the error and sends a JSON response
+// with the specified status code and message using Gin framework method.
 func RespondWithError(c *gin.Context, logger *slog.Logger, statusCode int, message string, err error) {
 	logger.Error(
 		message,
