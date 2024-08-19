@@ -75,7 +75,7 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidId)
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
@@ -91,9 +91,12 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 }
 
 func (h *Handler) UpdateEmployee(c *gin.Context) {
+	funcName := "UpdateEmployee"
+	var errMessage string
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage := errors.ErrMessage("UpdateEmployee:", errors.ErrInvalidId)
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
@@ -101,17 +104,20 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 	var employee models.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to parse JSON", err)
+		errMessage = errors.ErrMessage(funcName, errors.ErrInvalidJSON)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	if err := validation.ValidateEmployee(employee); err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: invalid employee data", err)
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeValidation)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	if err := h.storage.Update(id, &employee); err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "UpdateEmployee: failed to update employee", err)
+		errMessage = errors.ErrMessage(funcName, errors.ErrEmployeeUpdate)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
