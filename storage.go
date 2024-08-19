@@ -29,6 +29,7 @@ func NewMapMemoryStorage() *MapMemoryStorage {
 func (s *MapMemoryStorage) Insert(e *Employee) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	e.Id = s.counter
 	s.data[e.Id] = *e
 	s.counter++
@@ -43,6 +44,7 @@ func (s *MapMemoryStorage) Get(id int) (Employee, error) {
 
 func (s *MapMemoryStorage) List() []Employee {
 	var employeeList []Employee
+
 	for _, e := range s.data {
 		employeeList = append(employeeList, e)
 	}
@@ -52,6 +54,7 @@ func (s *MapMemoryStorage) List() []Employee {
 func (s *MapMemoryStorage) Update(id int, e *Employee) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	if _, ok := s.data[id]; ok {
 		s.data[id] = *e
 		return nil
