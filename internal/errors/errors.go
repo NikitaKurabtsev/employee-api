@@ -7,10 +7,11 @@ import (
 )
 
 var (
-	ErrInvalidId        = "ID must be a number"
-	ErrInvalidJSON      = "failed to parse JSON"
-	ErrUpdateEmployee   = "failed to update employee"
-	ErrEmployeeNotFound = "employee not found"
+	ErrInvalidId          = "ID must be a number"
+	ErrInvalidJSON        = "failed to parse JSON"
+	ErrUpdateEmployee     = "failed to update employee"
+	ErrEmployeeNotFound   = "employee not found"
+	ErrEmployeeValidation = "invalid employee data"
 )
 
 type errorResponse struct {
@@ -29,6 +30,6 @@ func RespondWithError(c *gin.Context, logger *slog.Logger, statusCode int, messa
 }
 
 func ErrMessage(funcName, message string) string {
-	errMessage := funcName + message
+	errMessage := funcName + ": " + message
 	return errMessage
 }
