@@ -133,9 +133,12 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 }
 
 func (h *Handler) DeleteEmployee(c *gin.Context) {
+	var errMessage string
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, "DeleteEmployee: invalid ID", err)
+		errMessage = errors.ErrMessage(delereMethodName, errors.ErrEmployeeInvalidId)
+		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
