@@ -6,17 +6,23 @@ import (
 	"strconv"
 
 	"github.com/NikitaKurabtsev/employee-api/internal/errors"
+	"github.com/NikitaKurabtsev/employee-api/internal/httputils"
 	"github.com/NikitaKurabtsev/employee-api/internal/models"
 	"github.com/NikitaKurabtsev/employee-api/internal/validation"
 	"github.com/gin-gonic/gin"
 )
 
 const (
+	// method names
 	createMethodName = "CreateEmployee"
 	updateMethodName = "UpdateEmployee"
 	getAllMethodName = "GetAllEmployees"
 	getMethodName    = "GetEmployee"
 	deleteMethodName = "DeleteEmployee"
+
+	// success messages
+	okCreated = "employee created"
+	okDeleted = "employee deleted"
 )
 
 type Repository interface {
@@ -43,27 +49,38 @@ func NewHandler(repository Repository, logger *slog.Logger) *Handler {
 
 func (h *Handler) CreateEmployee(c *gin.Context) {
 	var employee models.Employee
-	var errMessage string
 
 	if err := c.BindJSON(&employee); err != nil {
-		errMessage = errors.ErrMessage(createMethodName, errors.ErrInvalidJSON)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(createMethodName, errors.ErrInvalidJSON),
+			err,
+		)
 		return
 	}
 
 	if err := validation.ValidateEmployee(employee); err != nil {
-		errMessage = errors.ErrMessage(createMethodName, errors.ErrEmployeeValidation)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(createMethodName, errors.ErrEmployeeValidation),
+			err,
+		)
 		return
 	}
 
 	h.repository.Insert(&employee)
-	h.logger.Info("employee created", "name", employee.Name, "id", employee.Id)
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "successfully created",
-		"id":      employee.Id,
-	})
+	httputils.RespondWithStatus(
+		c,
+		h.logger,
+		http.StatusCreated,
+		httputils.OkMessage(createMethodName, okCreated),
+		employee.Id,
+	)
 }
 
 func (h *Handler) GetAllEmployees(c *gin.Context) {
@@ -149,7 +166,7 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("DeleteEmployee: employee deleted", "id", id)
+	h.logger.Info(deleteMethodName+" : employee deleted", "id", id)
 
 	c.Status(http.StatusNoContent)
 }
