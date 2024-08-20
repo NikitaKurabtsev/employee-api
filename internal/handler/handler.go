@@ -98,19 +98,27 @@ func (h *Handler) GetAllEmployees(c *gin.Context) {
 }
 
 func (h *Handler) GetEmployee(c *gin.Context) {
-	var errMessage string
-
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(getMethodName, errors.ErrEmployeeInvalidId)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(getMethodName, errors.ErrEmployeeInvalidId),
+			err,
+		)
 		return
 	}
 
 	employee, err := h.repository.Get(id)
 	if err != nil {
-		errMessage = errors.ErrMessage(getMethodName, errors.ErrEmployeeNotFound)
-		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusNotFound,
+			errors.ErrMessage(getMethodName, errors.ErrEmployeeNotFound),
+			err,
+		)
 		return
 	}
 
@@ -124,32 +132,49 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 }
 
 func (h *Handler) UpdateEmployee(c *gin.Context) {
-	var errMessage string
-
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeInvalidId)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(updateMethodName, errors.ErrEmployeeInvalidId),
+			err,
+		)
 		return
 	}
 
 	var employee models.Employee
-
 	if err := c.BindJSON(&employee); err != nil {
-		errMessage = errors.ErrMessage(updateMethodName, errors.ErrInvalidJSON)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(updateMethodName, errors.ErrInvalidJSON),
+			err,
+		)
 		return
 	}
 
 	if err := validation.ValidateEmployee(employee); err != nil {
-		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeValidation)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(updateMethodName, errors.ErrEmployeeValidation),
+			err,
+		)
 		return
 	}
 
 	if err := h.repository.Update(id, &employee); err != nil {
-		errMessage = errors.ErrMessage(updateMethodName, errors.ErrEmployeeUpdate)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(updateMethodName, errors.ErrEmployeeUpdate),
+			err,
+		)
 		return
 	}
 
