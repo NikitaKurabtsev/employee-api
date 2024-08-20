@@ -23,6 +23,7 @@ const (
 	// success messages
 	okCreated = "employee created"
 	okDeleted = "employee deleted"
+	okReaded  = "employee reader"
 )
 
 type Repository interface {
@@ -79,18 +80,20 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 		h.logger,
 		http.StatusCreated,
 		httputils.OkMessage(createMethodName, okCreated),
-		employee.Id,
+		employee,
 	)
 }
 
 func (h *Handler) GetAllEmployees(c *gin.Context) {
 	allEmployees := h.repository.List()
-	count := len(allEmployees)
 
-	c.JSON(http.StatusOK, gin.H{
-		"employees": allEmployees,
-		"count":     count,
-	})
+	httputils.RespondWithStatus(
+		c,
+		h.logger,
+		http.StatusOK,
+		httputils.OkMessage(getAllMethodName, okReaded),
+		allEmployees,
+	)
 }
 
 func (h *Handler) GetEmployee(c *gin.Context) {
