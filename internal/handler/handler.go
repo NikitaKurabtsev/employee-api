@@ -188,23 +188,35 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 }
 
 func (h *Handler) DeleteEmployee(c *gin.Context) {
-	var errMessage string
-
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(deleteMethodName, errors.ErrEmployeeInvalidId)
-		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusBadRequest,
+			errors.ErrMessage(deleteMethodName, errors.ErrEmployeeInvalidId),
+			err,
+		)
 		return
 	}
 
 	err = h.repository.Delete(id)
 	if err != nil {
-		errMessage = errors.ErrMessage(deleteMethodName, errors.ErrEmployeeNotFound)
-		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
+		errors.RespondWithError(
+			c,
+			h.logger,
+			http.StatusNotFound,
+			errors.ErrMessage(deleteMethodName, errors.ErrEmployeeNotFound),
+			err,
+		)
 		return
 	}
 
-	h.logger.Info(deleteMethodName+" : employee deleted", "id", id)
-
-	c.Status(http.StatusNoContent)
+	httputils.RespondWithStatus(
+		c,
+		h.logger,
+		http.StatusNoContent,
+		httputils.OkMessage(deleteMethodName, okDeleted),
+		0,
+	)
 }
