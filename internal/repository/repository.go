@@ -55,7 +55,7 @@ func (r *EmployeeRepository) Update(id int, e *models.Employee) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.data[id]; ok {
-		r.data[id] = *e
+		r.data[e.Id] = *e
 		return nil
 	}
 	return fmt.Errorf(errFailedToUpdate)
