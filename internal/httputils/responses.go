@@ -14,10 +14,7 @@ func RespondWithStatus(
 	data interface{},
 ) {
 	logger.Info(message, "data", data)
-	c.JSON(statusCode, gin.H{
-		"message": message,
-		"data":    data,
-	})
+	c.JSON(statusCode, data)
 }
 
 // OkMessage return formatted message for
