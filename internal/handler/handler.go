@@ -155,6 +155,7 @@ func (h *Handler) UpdateEmployee(c *gin.Context) {
 		)
 		return
 	}
+	employee.Id = id
 
 	if err := validation.ValidateEmployee(employee); err != nil {
 		errors.RespondWithError(
