@@ -16,7 +16,7 @@ const (
 	updateMethodName = "UpdateEmployee"
 	getAllMethodName = "GetAllEmployees"
 	getMethodName    = "GetEmployee"
-	delereMethodName = "DeleteEmployee"
+	deleteMethodName = "DeleteEmployee"
 )
 
 type Repository interface {
@@ -137,14 +137,15 @@ func (h *Handler) DeleteEmployee(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		errMessage = errors.ErrMessage(delereMethodName, errors.ErrEmployeeInvalidId)
+		errMessage = errors.ErrMessage(deleteMethodName, errors.ErrEmployeeInvalidId)
 		errors.RespondWithError(c, h.logger, http.StatusBadRequest, errMessage, err)
 		return
 	}
 
 	err = h.repository.Delete(id)
 	if err != nil {
-		errors.RespondWithError(c, h.logger, http.StatusNotFound, "DeleteEmployee: employee not found", err)
+		errMessage = errors.ErrMessage(deleteMethodName, errors.ErrEmployeeNotFound)
+		errors.RespondWithError(c, h.logger, http.StatusNotFound, errMessage, err)
 		return
 	}
 
