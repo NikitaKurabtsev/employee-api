@@ -113,7 +113,13 @@ func (h *Handler) GetEmployee(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, employee)
+	httputils.RespondWithStatus(
+		c,
+		h.logger,
+		http.StatusOK,
+		httputils.OkMessage(getMethodName, okReaded),
+		employee,
+	)
 }
 
 func (h *Handler) UpdateEmployee(c *gin.Context) {
