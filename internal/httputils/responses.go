@@ -11,12 +11,12 @@ func RespondWithStatus(
 	logger *slog.Logger,
 	statusCode int,
 	message string,
-	employeeId int,
+	data interface{},
 ) {
-	logger.Info(message, "id", employeeId)
+	logger.Info(message, "data", data)
 	c.JSON(statusCode, gin.H{
 		"message": message,
-		"id":      employeeId,
+		"data":    data,
 	})
 }
 
