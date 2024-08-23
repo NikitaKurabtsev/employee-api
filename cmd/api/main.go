@@ -5,14 +5,14 @@ import (
 	"github.com/NikitaKurabtsev/employee-api/internal/repository"
 	"github.com/NikitaKurabtsev/employee-api/internal/responses"
 	"github.com/NikitaKurabtsev/employee-api/internal/validation"
-	"github.com/NikitaKurabtsev/employee-api/pkg/applog"
+	"github.com/NikitaKurabtsev/employee-api/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 )
 
 func main() {
-	fileLogger, err := applog.NewFileLogger("api_log.log")
+	fileLogger, err := logger.NewFileLogger("api_log.log")
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
@@ -27,7 +27,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.Use(applog.ConsoleLogger())
+	router.Use(logger.ConsoleLogger())
 	router.Use(gin.Logger())
 
 	router.Use(gin.Recovery())
