@@ -1,31 +1,42 @@
 package main
 
 import (
-	"log"
-
 	"github.com/NikitaKurabtsev/employee-api/internal/handler"
 	"github.com/NikitaKurabtsev/employee-api/internal/repository"
-	"github.com/NikitaKurabtsev/employee-api/pkg/logger"
+	"github.com/NikitaKurabtsev/employee-api/internal/responses"
+	"github.com/NikitaKurabtsev/employee-api/internal/validation"
+	"github.com/NikitaKurabtsev/employee-api/pkg/applog"
 	"github.com/gin-gonic/gin"
+	"log"
+	"os"
 )
 
 func main() {
-	logger, err := logger.InitLogger()
+	fileLogger, err := applog.NewFileLogger("api_log.log")
 	if err != nil {
-		log.Fatal("failed to init logger: %w", err)
+		log.Fatalf("failed to init logger: %v", err)
 	}
 
-	employeeRepository := repository.NewEmployeeRepository()
+	gin.DisableConsoleColor()
+	gin.DefaultWriter = os.Stdout
 
-	handler := handler.NewHandler(employeeRepository, logger)
+	employeeRepository := repository.NewEmployeeRepository()
+	employeeResponse := responses.NewEmployeeResponse()
+	employeeValidator := validation.NewEmployeeValidator()
+	employeeHandler := handler.NewHandler(employeeRepository, employeeResponse, fileLogger, employeeValidator)
 
 	router := gin.Default()
 
-	router.POST("/employee", handler.CreateEmployee)
-	router.GET("/employee", handler.GetAllEmployees)
-	router.GET("/employee/:id", handler.GetEmployee)
-	router.PUT("/employee/:id", handler.UpdateEmployee)
-	router.DELETE("/employee/:id", handler.DeleteEmployee)
+	router.Use(applog.ConsoleLogger())
+	router.Use(gin.Logger())
+
+	router.Use(gin.Recovery())
+
+	router.POST("/employee", employeeHandler.CreateEmployee)
+	router.GET("/employee", employeeHandler.GetAllEmployees)
+	router.GET("/employee/:id", employeeHandler.GetEmployee)
+	router.PUT("/employee/:id", employeeHandler.UpdateEmployee)
+	router.DELETE("/employee/:id", employeeHandler.DeleteEmployee)
 
 	// throw the port :80
 	// :8080 is default
