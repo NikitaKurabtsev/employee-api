@@ -33,7 +33,7 @@ func (er EmployeeResponse) RespondWithError(
 	originalErr error,
 ) {
 	var handlerName string
-	// Extracts the handler name from the caller handler.
+	// Extracts the name from the caller handler.
 	pc, _, _, ok := runtime.Caller(1)
 	if ok {
 		fullName := runtime.FuncForPC(pc).Name()
