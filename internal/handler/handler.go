@@ -1,58 +1,50 @@
 package handler
 
 import (
-	"github.com/NikitaKurabtsev/employee-api/internal/interfaces"
 	"github.com/NikitaKurabtsev/employee-api/internal/models"
+	"github.com/NikitaKurabtsev/employee-api/internal/validation"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 )
 
 const (
-	ErrEmployeeInvalidId  = "ID must be a number"
+	ErrEmployeeInvalidID  = "ID must be a number"
 	ErrInvalidJSON        = "failed to parse JSON"
 	ErrEmployeeUpdate     = "failed to update employee"
 	ErrEmployeeNotFound   = "employee not found"
 	ErrEmployeeValidation = "invalid employee data"
 )
 
-type (
-	Repository interface {
-		Insert(e *models.Employee)
-		Get(id int) (models.Employee, error)
-		List() []models.Employee
-		Update(id int, e *models.Employee) error
-		Delete(id int) error
-	}
-	Responder interface {
-		RespondWithStatus(c *gin.Context, statusCode int, data any)
-		RespondWithError(c *gin.Context, logger interfaces.Logger, statusCode int, customError string, originalErr error)
-	}
-	Validator interface {
-		ValidateFields(e models.Employee) error
-		ValidateId(c *gin.Context) (int, error)
-	}
+const (
+	createHandler = "CreateEmployee"
+	getHandler    = "GetEmployee"
+	updateHandler = "UpdateEmployee"
+	deleteHandler = "DeleteEmployee"
 )
+
+type Repository interface {
+	Insert(e models.Employee)
+	Get(id int) (models.Employee, error)
+	List() []models.Employee
+	Update(id int, e models.Employee) error
+	Delete(id int) error
+}
 
 type Handler struct {
 	repository Repository
-	respond    Responder
-	logger     interfaces.Logger
-	validation Validator
+	logger     *slog.Logger
 }
 
 // NewHandler returns pointer to the Handler
 // and implements Dependency Injection pattern
 func NewHandler(
 	repository Repository,
-	respond Responder,
-	logger interfaces.Logger,
-	validation Validator,
+	logger *slog.Logger,
 ) *Handler {
 	return &Handler{
 		repository: repository,
-		respond:    respond,
 		logger:     logger,
-		validation: validation,
 	}
 }
 
@@ -60,81 +52,91 @@ func (h *Handler) CreateEmployee(c *gin.Context) {
 	var employee models.Employee
 
 	if err := c.BindJSON(&employee); err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrInvalidJSON, err)
+		h.logger.Error("%s: %s", createHandler, ErrInvalidJSON)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.validation.ValidateFields(employee); err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeValidation, err)
+	if err := validation.ValidateFields(employee); err != nil {
+		h.logger.Error("%s: %s", createHandler, ErrEmployeeValidation)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	h.repository.Insert(&employee)
+	h.repository.Insert(employee)
 
-	h.respond.RespondWithStatus(c, http.StatusCreated, employee)
+	c.JSON(http.StatusCreated, gin.H{"created": employee})
 }
 
 func (h *Handler) GetAllEmployees(c *gin.Context) {
 	allEmployees := h.repository.List()
 
-	h.respond.RespondWithStatus(c, http.StatusOK, allEmployees)
+	c.JSON(http.StatusOK, allEmployees)
 }
 
 func (h *Handler) GetEmployee(c *gin.Context) {
-	id, err := h.validation.ValidateId(c)
+	id, err := validation.ValidateId(c.Param("id"))
 	if err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeInvalidId, err)
+		h.logger.Error("%s: %s", getHandler, ErrEmployeeInvalidID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	employee, err := h.repository.Get(id)
 	if err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusNotFound, ErrEmployeeNotFound, err)
+		h.logger.Error("%s: %s", getHandler, ErrEmployeeNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	h.respond.RespondWithStatus(c, http.StatusOK, employee)
+	c.JSON(http.StatusOK, employee)
 }
 
 func (h *Handler) UpdateEmployee(c *gin.Context) {
-	id, err := h.validation.ValidateId(c)
+	id, err := validation.ValidateId(c.Param("id"))
 	if err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeInvalidId, err)
+		h.logger.Error("%s: %s", updateHandler, ErrEmployeeInvalidID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var employee models.Employee
 	if err = c.BindJSON(&employee); err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrInvalidJSON, err)
+		h.logger.Error("%s: %s", updateHandler, ErrInvalidJSON)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	employee.Id = id
 
-	if err = h.validation.ValidateFields(employee); err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeValidation, err)
+	if err = validation.ValidateFields(employee); err != nil {
+		h.logger.Error("%s: %s", updateHandler, ErrEmployeeValidation)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err = h.repository.Update(id, &employee); err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeUpdate, err)
+	if err = h.repository.Update(id, employee); err != nil {
+		h.logger.Error("%s: %s", updateHandler, ErrEmployeeUpdate)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	h.respond.RespondWithStatus(c, http.StatusOK, employee)
+	c.JSON(http.StatusOK, gin.H{"updated": employee})
 }
 
 func (h *Handler) DeleteEmployee(c *gin.Context) {
-	id, err := h.validation.ValidateId(c)
+	id, err := validation.ValidateId(c.Param("id"))
 	if err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusBadRequest, ErrEmployeeInvalidId, err)
+		h.logger.Error("%s: %s", deleteHandler, ErrEmployeeInvalidID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = h.repository.Delete(id)
 	if err != nil {
-		h.respond.RespondWithError(c, h.logger, http.StatusNotFound, ErrEmployeeNotFound, err)
+		h.logger.Error("%s: %s", deleteHandler, ErrEmployeeNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	h.respond.RespondWithStatus(c, http.StatusNoContent, struct{}{})
+	c.JSON(http.StatusNoContent, nil)
 }
